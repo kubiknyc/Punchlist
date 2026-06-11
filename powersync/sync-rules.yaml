@@ -1,0 +1,24 @@
+bucket_definitions:
+  # GC roles get the whole org
+  gc_org:
+    parameters: >
+      select org_id from org_members
+      where user_id = request.user_id() and role in ('admin','member')
+    data:
+      - select * from projects where org_id = bucket.org_id
+      - select * from locations where org_id = bucket.org_id
+      - select * from punch_items where org_id = bucket.org_id
+      - select * from punch_item_events where org_id = bucket.org_id
+      - select * from photos where org_id = bucket.org_id
+
+  # Subs get only their assigned items and those items' context
+  sub_items:
+    parameters: >
+      select id as item_id, project_id, location_id from punch_items
+      where assigned_to = request.user_id()
+    data:
+      - select * from punch_items where id = bucket.item_id
+      - select * from punch_item_events where item_id = bucket.item_id
+      - select * from photos where item_id = bucket.item_id
+      - select * from projects where id = bucket.project_id
+      - select * from locations where id = bucket.location_id
