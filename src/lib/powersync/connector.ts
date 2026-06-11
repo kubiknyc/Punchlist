@@ -7,10 +7,12 @@ import { supabase } from '@/lib/supabase/client';
 
 export class SupabaseConnector implements PowerSyncBackendConnector {
   async fetchCredentials() {
+    const endpoint = process.env.NEXT_PUBLIC_POWERSYNC_URL;
+    if (!endpoint) return null;
     const { data } = await supabase.auth.getSession();
     if (!data.session) return null;
     return {
-      endpoint: process.env.NEXT_PUBLIC_POWERSYNC_URL!,
+      endpoint,
       token: data.session.access_token,
     };
   }

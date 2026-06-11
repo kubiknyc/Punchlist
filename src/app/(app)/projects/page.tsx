@@ -10,23 +10,36 @@ export default function ProjectsPage() {
     `select id, name, status from projects where status = 'active' order by created_at desc`,
   );
   const [name, setName] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   async function createProject(e: React.FormEvent) {
     e.preventDefault();
-    const { data } = await supabase.auth.getUser();
-    const userId = data.user?.id;
-    if (!userId || !name.trim()) return;
-    // org_id: single-org v1 — first membership row synced locally
-    const orgRow = await db.get<{ org_id: string }>(
-      `select org_id from projects limit 1`,
-    ).catch(() => null);
-    const orgId = orgRow?.org_id ?? (await fetchOrgId(userId));
-    await db.execute(
-      `insert into projects (id, org_id, name, status, created_at)
-       values (uuid(), ?, ?, 'active', datetime('now'))`,
-      [orgId, name.trim()],
-    );
-    setName('');
+    setError(null);
+    try {
+      const { data } = await supabase.auth.getUser();
+      const userId = data.user?.id;
+      if (!userId || !name.trim()) return;
+      // org_id: single-org v1 — first membership row synced locally.
+      // Empty result (no rows yet) falls back to the online lookup;
+      // real DB errors surface to the user below.
+      const rows = await db.getAll<{ org_id: string }>(
+        `select org_id from projects limit 1`,
+      );
+      const orgId = rows[0]?.org_id ?? (await fetchOrgId(userId));
+      await db.execute(
+        `insert into projects (id, org_id, name, status, created_at)
+         values (uuid(), ?, ?, 'active', datetime('now'))`,
+        [orgId, name.trim()],
+      );
+      setName('');
+    } catch (err) {
+      // First-ever project needs one online org lookup; offline it fails here.
+      setError(
+        err instanceof Error && err.message === 'No org membership found'
+          ? 'Could not find your organization — go online once to create your first project.'
+          : 'Could not create project. Check your connection and try again.',
+      );
+    }
   }
 
   return (
@@ -42,6 +55,7 @@ export default function ProjectsPage() {
           value={name} onChange={(e) => setName(e.target.value)} />
         <button className="rounded bg-black px-4 text-white" type="submit">Add</button>
       </form>
+      {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
       <ul className="divide-y">
         {projects.map((p) => (
           <li key={p.id} className="p-3">{p.name}</li>

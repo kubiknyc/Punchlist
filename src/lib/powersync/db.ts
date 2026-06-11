@@ -8,9 +8,18 @@ export const db = new PowerSyncDatabase({
   database: { dbFilename: 'punchlist.db' },
 });
 
-let connected = false;
+let connecting = false;
 export async function connectPowerSync() {
-  if (connected) return;
-  connected = true;
-  await db.connect(new SupabaseConnector());
+  if (connecting) return;
+  if (!process.env.NEXT_PUBLIC_POWERSYNC_URL) {
+    console.warn('NEXT_PUBLIC_POWERSYNC_URL not set — running local-only, writes stay queued');
+    return;
+  }
+  connecting = true;
+  try {
+    await db.connect(new SupabaseConnector());
+  } catch (e) {
+    connecting = false; // allow retry on next mount
+    console.error('PowerSync connect failed', e);
+  }
 }

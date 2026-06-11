@@ -1,11 +1,14 @@
 bucket_definitions:
-  # GC roles get the whole org
+  # GC roles get the whole org. Spec: closed projects are excluded from sync
+  # to bound phone storage — applied to projects here; excluding their
+  # items/photos too needs project status denormalized onto child rows
+  # (deferred to Plan 2).
   gc_org:
     parameters: >
       select org_id from org_members
       where user_id = request.user_id() and role in ('admin','member')
     data:
-      - select * from projects where org_id = bucket.org_id
+      - select * from projects where org_id = bucket.org_id and status = 'active'
       - select * from locations where org_id = bucket.org_id
       - select * from punch_items where org_id = bucket.org_id
       - select * from punch_item_events where org_id = bucket.org_id
