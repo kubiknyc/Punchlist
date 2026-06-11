@@ -1027,4 +1027,10 @@ git add package.json && git commit -m "chore: add verify script (lint + typechec
 
 - Punch item UI, quick-add flow, camera/photos, sub "My items" (Plan 2)
 - Synced `org_members` bucket replacing the `fetchOrgId` online lookup (Plan 2)
+- Wiring `resolveStatusConflict` into the upload/merge path — until then GC-vs-GC
+  offline conflicts are last-write-wins, so the spec's "later-stage status never
+  silently downgraded" guarantee holds only against sub writes (Plan 2)
+- Excluding closed projects' punch items/photos from sync rules (projects rows
+  are filtered to `active` already; child rows need status denormalized) (Plan 2)
+- Status history written by DB trigger instead of trusted client inserts (Plan 2)
 - Desktop table, PDF reports, Resend email, invitations, PWA manifest/service worker, Playwright E2E (Plan 3)
