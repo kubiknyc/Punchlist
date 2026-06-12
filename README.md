@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Punchlist
 
-## Getting Started
+Offline-first construction punch list app for general contractors. A GC walks the job site with a phone, logs defects with photos organized by project and location, and assigns them to subcontractors with due dates. Subs see their assigned items, fix them, and mark them done with proof photos; the GC verifies fixes on the next walk. Every core workflow works without connectivity and syncs when it returns.
 
-First, run the development server:
+## Stack
+
+- **Frontend:** Next.js (App Router) + TypeScript + Tailwind, installable as a PWA
+- **Local data:** PowerSync in-browser SQLite — the UI never waits on the network
+- **Backend:** Supabase (Postgres, Auth, Storage, Row-Level Security)
+- **Sync:** PowerSync service between local SQLite and Postgres, with sync rules mirroring RLS
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `.env.local` with:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+NEXT_PUBLIC_POWERSYNC_URL=...
+```
 
-## Learn More
+Without `NEXT_PUBLIC_POWERSYNC_URL` the app runs local-only: data persists in the browser and writes stay queued until sync is configured.
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run verify     # lint + typecheck + unit tests + build (run before committing)
+npm test           # unit tests (Vitest)
+supabase test db   # RLS security tests (pgTAP, needs local Supabase stack)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Documentation
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Design spec: [`docs/superpowers/specs/2026-06-10-punchlist-design.md`](docs/superpowers/specs/2026-06-10-punchlist-design.md)
+- Implementation plans: [`docs/superpowers/plans/`](docs/superpowers/plans/)
+- Contributor/agent guidance: [`CLAUDE.md`](CLAUDE.md)
