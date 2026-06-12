@@ -1,10 +1,10 @@
 # Punchlist
 
-Offline-first construction punch list app for general contractors. A GC walks the job site with a phone, logs defects with photos organized by project and location, and assigns them to subcontractors with due dates. Subs see their assigned items, fix them, and mark them done with proof photos; the GC verifies fixes on the next walk. Every core workflow works without connectivity and syncs when it returns.
+Offline-first construction punch list app for general contractors. A GC walks the job site with a phone, logs defects with photos organized by project and location, and assigns them to subcontractors with due dates. Subs see their assigned items, fix them, and mark them done with proof photos; the GC verifies fixes on the next walk. Designed offline-first: every core workflow is built to work without connectivity and sync when it returns.
 
 ## Stack
 
-- **Frontend:** Next.js (App Router) + TypeScript + Tailwind, installable as a PWA
+- **Frontend:** Next.js (App Router) + TypeScript + Tailwind (PWA install + service worker planned for Plan 3)
 - **Local data:** PowerSync in-browser SQLite — the UI never waits on the network
 - **Backend:** Supabase (Postgres, Auth, Storage, Row-Level Security)
 - **Sync:** PowerSync service between local SQLite and Postgres, with sync rules mirroring RLS
